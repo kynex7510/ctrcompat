@@ -10,6 +10,8 @@
 #include <CTR/Log.h>
 #include <CTR/Allocator.h>
 
+#include "QTMRAM.h"
+
 #include <stdarg.h>
 #include <stdio.h>
 #include <malloc.h>
@@ -32,6 +34,20 @@ void impl_ctr_log(const char* fmt, ...) {
 
 // Allocator
 
+bool qtmramInitRegion(uintptr_t* regionBase, size_t* regionSize) {
+    s64 base = 0;
+    s64 size = 0;
+
+    if (R_SUCCEEDED(svcGetProcessInfo(&base, CUR_PROCESS_HANDLE, 22))) {
+        if (R_SUCCEEDED(svcGetProcessInfo(&size, CUR_PROCESS_HANDLE, 23))) {
+            *regionBase = base;
+            *regionSize = size;
+        }
+    }
+
+    return base && size;
+}
+
 void* ctrAllocAligned(CTRMemType memType, size_t size, size_t alignment) {
     if (!alignment) {
         switch (memType) {
@@ -42,7 +58,7 @@ void* ctrAllocAligned(CTRMemType memType, size_t size, size_t alignment) {
             case CTR_MEM_VRAM:
                 return vramAlloc(size);
             case CTR_MEM_QTMRAM:
-                // TODO: return qtmramAlloc(size);
+                return qtmramAlloc(size);
             default:
                 return NULL;
         }
@@ -56,7 +72,7 @@ void* ctrAllocAligned(CTRMemType memType, size_t size, size_t alignment) {
         case CTR_MEM_VRAM:
             return vramMemAlign(size, alignment);
         case CTR_MEM_QTMRAM:
-            // TODO: return qtmramMemAlign(size, alignment);
+            return qtmramMemAlign(size, alignment);
         default:
             return NULL;
     }
@@ -91,7 +107,7 @@ void ctrFree(void* p) {
             vramFree(p);
             break;
         case CTR_MEM_QTMRAM:
-            // TODO: qtmramFree(p);
+            qtmramFree(p);
             break;
         default:;
     }
@@ -189,7 +205,7 @@ size_t ctrGetAllocSize(const void* p) {
         case CTR_MEM_VRAM:
             return vramGetSize((void*)p);
         case CTR_MEM_QTMRAM:
-            // TODO: return qtmramGetSize(p);
+            return qtmramGetSize(p);
         default:
             return 0;
     }

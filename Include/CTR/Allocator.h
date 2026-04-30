@@ -10,6 +10,7 @@
 #include <CTR/Defs.h>
 
 #include <stddef.h>
+#include <stdint.h>
 
 typedef enum {
     CTR_MEM_HEAP,

@@ -15,11 +15,17 @@
 #include <CTR/Log.h>
 #include <CTR/Allocator.h>
 
+#include "QTMRAM.h"
+
 #include <stdarg.h>
 #include <malloc.h>
 #include <string.h>
 
+// CTR_BREAK
+
 void impl_ctr_break() { panic(); }
+
+// CTR_LOG
 
 void impl_ctr_log(const char* fmt, ...) {
     // TODO: ideally we would like to print to the dspico.
@@ -29,6 +35,16 @@ void impl_ctr_log(const char* fmt, ...) {
     va_start(args, fmt);
     ee_vsnprintf(buf, 256, fmt, args);
     ee_puts(buf);
+}
+
+// Allocator
+
+bool qtmramInitRegion(uintptr_t* regionBase, size_t* regionSize) {
+    // TODO: mmu checks?
+    // TODO: enable GPU access and stuff
+    *regionBase = QTM_RAM_BASE;
+    *regionSize = QTM_RAM_SIZE;
+    return true;
 }
 
 void* ctrAllocAligned(CTRMemType memType, size_t size, size_t alignment) {
@@ -41,7 +57,7 @@ void* ctrAllocAligned(CTRMemType memType, size_t size, size_t alignment) {
             case CTR_MEM_VRAM:
                 return vramAlloc(size);
             case CTR_MEM_QTMRAM:
-                // TODO: return qtmramAlloc(size);
+                return qtmramAlloc(size);
             default:
                 return NULL;
         }
@@ -55,7 +71,7 @@ void* ctrAllocAligned(CTRMemType memType, size_t size, size_t alignment) {
         case CTR_MEM_VRAM:
             return vramMemAlign(size, alignment);
         case CTR_MEM_QTMRAM:
-            // TODO: return qtmramMemAlign(size, alignment);
+            return qtmramMemAlign(size, alignment);
         default:
             return NULL;
     }
@@ -90,7 +106,7 @@ void ctrFree(void* p) {
             vramFree(p);
             break;
         case CTR_MEM_QTMRAM:
-            // TODO: qtmramFree(p);
+            qtmramFree(p);
             break;
         default:;
     }
@@ -188,7 +204,7 @@ size_t ctrGetAllocSize(const void* p) {
         case CTR_MEM_VRAM:
             return vramGetSize((void*)p);
         case CTR_MEM_QTMRAM:
-            // TODO: return qtmramGetSize(p);
+            return qtmramGetSize(p);
         default:
             return 0;
     }

@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
 # C23, CXX, ASM required for libn3ds.
 set(CMAKE_C_STANDARD 23)
 set(CMAKE_C_STANDARD_REQUIRED ON)
-project(kygx C CXX ASM)
+project(ctrcompat C CXX ASM)
 
 if (CTR_BAREMETAL)
     # Include libn3ds for baremetal compilation.
@@ -14,10 +14,16 @@ else()
 endif()
 
 # Setup library.
+set (CTRCOMPAT_SOURCES Source/QTMRAM.c)
+
 if (CTR_BAREMETAL)
-    set(CTRCOMPAT_SOURCES Source/libn3ds.c)
+    set(CTRCOMPAT_SOURCES ${CTRCOMPAT_SOURCES}
+        Source/libn3ds.c
+    )
 else()
-    set(CTRCOMPAT_SOURCES Source/HOS.c)
+    set(CTRCOMPAT_SOURCES ${CTRCOMPAT_SOURCES}
+        Source/HOS.c
+    )
 endif()
 
 add_library(ctrcompat STATIC ${CTRCOMPAT_SOURCES})
