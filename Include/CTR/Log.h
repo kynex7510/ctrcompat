@@ -7,10 +7,10 @@
 #ifndef GUARD_CTR_LOG_H
 #define GUARD_CTR_LOG_H
 
-#define CTR_LOG(fmt, ...) impl_ctr_log((fmt), __VA_ARGS__)
+#define CTR_LOG(...) impl_ctr_log(__VA_ARGS__)
 
 #ifndef NDEBUG
-#define CTR_LOG_DEBUG(fmt, ...) CTR_LOG((fmt), __VA_ARGS__)
+#define CTR_LOG_DEBUG(...) CTR_LOG(__VA_ARGS__)
 #else
 #define CTR_LOG_DEBUG(fmt) (void)((fmt))
 #endif // !NDEBUG
