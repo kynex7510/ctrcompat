@@ -7,7 +7,9 @@
 #ifndef GUARD_CTR_LOG_H
 #define GUARD_CTR_LOG_H
 
-#define CTR_LOG(...) impl_ctr_log(__VA_ARGS__)
+#include <CTR/Defs.h>
+
+#define CTR_LOG(...) impl_CTR_GLOBAL_NS impl_ctr_log(__VA_ARGS__)
 
 #ifndef NDEBUG
 #define CTR_LOG_DEBUG(...) CTR_LOG(__VA_ARGS__)

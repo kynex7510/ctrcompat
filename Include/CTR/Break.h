@@ -7,10 +7,10 @@
 #ifndef GUARD_CTR_BREAK_H
 #define GUARD_CTR_BREAK_H
 
+#include <CTR/Defs.h>
 #include <CTR/Log.h>
-#include <CTR/Impl.h>
 
-#define CTR_BREAK() impl_ctr_break()
+#define CTR_BREAK() impl_CTR_GLOBAL_NS impl_ctr_break()
 
 #define CTR_BREAK_UNLESS(cond)                                                                  \
     do {                                                                                        \

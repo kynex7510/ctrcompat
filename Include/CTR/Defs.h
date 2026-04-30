@@ -15,4 +15,16 @@
 #define CTR_INLINE static inline
 #endif // __cplusplus
 
+/* Private stuff */
+
+#define impl_CTR_LIKELY(x) (bool)__builtin_expect((bool)(x), true)
+#define impl_CTR_AS_STRING0(x) #x
+#define impl_CTR_AS_STRING(x) impl_CTR_AS_STRING0(x)
+
+#ifdef __cplusplus
+#define impl_CTR_GLOBAL_NS ::
+#else
+#define impl_CTR_GLOBAL_NS
+#endif
+
 #endif /* GUARD_CTR_DEFS_H */
