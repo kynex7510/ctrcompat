@@ -7,7 +7,20 @@
 #ifndef GUARD_CTR_BREAK_H
 #define GUARD_CTR_BREAK_H
 
+#include <CTR/Log.h>
+#include <CTR/Impl.h>
+
 #define CTR_BREAK() impl_ctr_break()
+
+#define CTR_BREAK_UNLESS(cond)                                                                  \
+    do {                                                                                        \
+        if (!impl_CTR_LIKELY(cond)) {                                                           \
+            CTR_LOG_DEBUG("Program broke execution: \"" impl_CTR_AS_STRING(cond) "\" was false" \
+                "\nIn file: " __FILE__                                                          \
+                "\nOn line: " impl_CTR_AS_STRING(__LINE__));                                    \
+            CTR_BREAK();                                                                        \
+        }                                                                                       \
+    } while (false)
 
 #ifdef __cplusplus
 extern "C" {
