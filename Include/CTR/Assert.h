@@ -7,22 +7,22 @@
 #ifndef GUARD_CTR_ASSERT_H
 #define GUARD_CTR_ASSERT_H
 
+#include <CTR/Defs.h>
 #include <CTR/Break.h>
 #include <CTR/Log.h>
-#include <CTR/Impl.h>
 
 /* CTR_ASSERT */
 
 #ifndef NDEBUG
 
-#define CTR_ASSERT(cond)                                                \
-    do {                                                                \
-        if (!impl_CTR_LIKELY(cond)) {                                   \
-            CTR_LOG_DEBUG("Assertion failed: " impl_CTR_AS_STRING(cond) \
-                "\nIn file: " __FILE__                                  \
-                "\nOn line: " impl_CTR_AS_STRING(__LINE__));            \
-            CTR_BREAK();                                                \
-        }                                                               \
+#define CTR_ASSERT(cond)                                                  \
+    do {                                                                  \
+        if (!impl_CTR_LIKELY(cond)) {                                     \
+            CTR_LOG_DEBUG("Assertion failed: " impl_CTR_AS_STRING(cond)); \
+            CTR_LOG_DEBUG("- In file: " __FILE__);                        \
+            CTR_LOG_DEBUG("- On line: " impl_CTR_AS_STRING(__LINE__));    \
+            CTR_BREAK();                                                  \
+        }                                                                 \
     } while (false)
 
 #else
