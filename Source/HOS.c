@@ -238,7 +238,7 @@ void ctrInvalidateDataCache(const void* addr, size_t size) {
     const bool vram = (u32)addr >= OS_VRAM_VADDR && (u32)addr <= (OS_VRAM_VADDR + OS_VRAM_SIZE);
 
     if (fcram || vram) {
-        CTR_BREAK_UNLESS(R_SUCCEEDED(GSPGPU_InvalidateDataCache(addr, size)));
+        CTR_BREAK_IF(R_FAILED(GSPGPU_InvalidateDataCache(addr, size)));
     }
 }
 
@@ -248,6 +248,6 @@ void ctrFlushDataCache(const void* addr, size_t size) {
     const bool vram = (u32)addr >= OS_VRAM_VADDR && (u32)addr <= (OS_VRAM_VADDR + OS_VRAM_SIZE);
 
     if (fcram || vram) {
-        CTR_BREAK_UNLESS(R_SUCCEEDED(GSPGPU_FlushDataCache(addr, size)));
+        CTR_BREAK_IF(R_FAILED(GSPGPU_FlushDataCache(addr, size)));
     }
 }
