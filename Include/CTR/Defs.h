@@ -27,6 +27,6 @@
 #define impl_CTR_GLOBAL_NS ::
 #else
 #define impl_CTR_GLOBAL_NS
-#endif
+#endif // __cplusplus
 
 #endif /* GUARD_CTR_DEFS_H */

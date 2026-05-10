@@ -4,16 +4,21 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+#include <arm.h>
 #include <debug.h>
 #include <mem_map.h>
 #include <arm11/fmt.h>
 #include <arm11/allocator/fcram.h>
 #include <arm11/allocator/vram.h>
 #include <drivers/cache.h>
+#include <kmutex.h>
+#include <ksemaphore.h>
 
 #include <CTR/Break.h>
 #include <CTR/Log.h>
+#include <CTR/Assert.h>
 #include <CTR/Allocator.h>
+#include <CTR/Sync.h>
 
 #include "QTMRAM.h"
 
@@ -217,3 +222,85 @@ void* ctrGetVirtualAddress(uintptr_t addr) { return (void*)addr; }
 
 void ctrInvalidateDataCache(const void* addr, size_t size) { invalidateDCacheRange(addr, size); }
 void ctrFlushDataCache(const void* addr, size_t size) { flushDCacheRange(addr, size); }
+
+// Sync
+
+struct CTRCVImpl {
+    KHandle sema;
+    u32 waiters;
+};
+
+void ctrYield(void) { yieldTask(); }
+
+CTRMtx* ctrMtxCreate(void) {
+    KHandle mtx = createMutex();
+    CTR_BREAK_IF(!mtx);
+    return (CTRMtx*)mtx;
+}
+
+void ctrMtxDestroy(CTRMtx* mtx) {
+    CTR_ASSERT(mtx);
+    deleteMutex((KHandle)mtx);
+}
+
+void ctrMtxAcquire(CTRMtx* mtx) {
+    CTR_ASSERT(mtx);
+    CTR_BREAK_IF(lockMutex((KHandle)mtx) != KRES_OK);
+}
+
+void ctrMtxRelease(CTRMtx* mtx) {
+    CTR_ASSERT(mtx);
+    CTR_BREAK_IF(unlockMutex((KHandle)mtx) != KRES_OK);
+}
+
+CTRCV* ctrCVCreate(void) {
+    CTRCV* cv = ctrAlloc(CTR_MEM_HEAP, sizeof(CTRCV));
+    CTR_BREAK_IF(cv == NULL);
+    cv->sema = createSemaphore(0);
+    CTR_BREAK_IF(!cv->sema);
+    cv->waiters = 0;
+    return cv;
+}
+
+void ctrCVDestroy(CTRCV* cv) {
+    CTR_ASSERT(cv);
+    deleteSemaphore(cv->sema);
+    ctrFree(cv);
+}
+
+void ctrCVWait(CTRCV* cv, CTRMtx* mtx) {
+    CTR_ASSERT(cv);
+    CTR_ASSERT(mtx);
+
+    u32 waiters;
+    do {
+        waiters = __ldrex(&cv->waiters);
+    } while (__strex(&cv->waiters, waiters + 1));
+
+    ctrMtxRelease(mtx);
+    CTR_BREAK_IF(waitForSemaphore(cv->sema) != KRES_OK);
+    ctrMtxAcquire(mtx);
+}
+
+void ctrCVNotify(CTRCV* cv, size_t count) {
+    CTR_ASSERT(cv);
+
+    u32 waiters;
+
+    __dmb();
+    do {
+        waiters = __ldrex(&cv->waiters);
+    } while (__strex(&cv->waiters, waiters > count ? waiters - count : 0));
+
+    if (waiters) {
+        // TODO: reschedule?
+        signalSemaphore(cv->sema, waiters, false);
+    } else {
+        __dmb();
+    }
+}
+
+void ctrCVBroadcast(CTRCV* cv) {
+    CTR_ASSERT(cv);
+    ctrCVNotify(cv, UINT32_MAX);
+}

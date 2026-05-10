@@ -8,7 +8,9 @@
 
 #include <CTR/Break.h>
 #include <CTR/Log.h>
+#include <CTR/Assert.h>
 #include <CTR/Allocator.h>
+#include <CTR/Sync.h>
 
 #include "QTMRAM.h"
 
@@ -250,4 +252,59 @@ void ctrFlushDataCache(const void* addr, size_t size) {
     if (fcram || vram) {
         CTR_BREAK_IF(R_FAILED(GSPGPU_FlushDataCache(addr, size)));
     }
+}
+
+// Sync
+
+void ctrYield(void) { svcSleepThread(0); }
+
+CTRMtx* ctrMtxCreate(void) {
+    LightLock* l = ctrAlloc(CTR_MEM_HEAP, sizeof(LightLock));
+    CTR_BREAK_IF(l == NULL);
+    LightLock_Init(l);
+    return (CTRMtx*)l;
+}
+
+void ctrMtxDestroy(CTRMtx* mtx) {
+    CTR_ASSERT(mtx);
+    ctrFree(mtx);
+}
+
+void ctrMtxAcquire(CTRMtx* mtx) {
+    CTR_ASSERT(mtx);
+    LightLock_Lock((LightLock*)mtx);
+}
+
+void ctrMtxRelease(CTRMtx* mtx) {
+    CTR_ASSERT(mtx);
+    LightLock_Unlock((LightLock*)mtx);
+}
+
+CTRCV* ctrCVCreate(void) {
+    CondVar* cv = ctrAlloc(CTR_MEM_HEAP, sizeof(CondVar));
+    CTR_BREAK_IF(cv == NULL);
+    CondVar_Init(cv);
+    return (CTRCV*)cv;
+}
+
+void ctrCVDestroy(CTRCV* cv) {
+    CTR_ASSERT(cv);
+    ctrFree(cv);
+}
+
+void ctrCVWait(CTRCV* cv, CTRMtx* mtx) {
+    CTR_ASSERT(cv);
+    CTR_ASSERT(mtx);
+
+    CondVar_Wait((CondVar*)cv, (LightLock*)mtx);
+}
+
+void ctrCVNotify(CTRCV* cv, size_t count) {
+    CTR_ASSERT(cv);
+    CondVar_WakeUp((CondVar*)cv, count);
+}
+
+void ctrCVBroadcast(CTRCV* cv) {
+    CTR_ASSERT(cv);
+    CondVar_Broadcast((CTRCV*)cv);
 }
