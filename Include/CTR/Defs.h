@@ -17,9 +17,10 @@
 #define CTR_INLINE static inline
 #endif // __cplusplus
 
+#define CTR_LIKELY(x) (bool)__builtin_expect((bool)(x), true)
+
 /* Private stuff */
 
-#define impl_CTR_LIKELY(x) (bool)__builtin_expect((bool)(x), true)
 #define impl_CTR_AS_STRING0(x) #x
 #define impl_CTR_AS_STRING(x) impl_CTR_AS_STRING0(x)
 
