@@ -7,8 +7,7 @@
 #ifndef GUARD_CTR_QTMRAM_H
 #define GUARD_CTR_QTMRAM_H
 
-#include <stddef.h>
-#include <stdint.h>
+#include <CTR/Defs.h>
 
 bool qtmramInitRegion(uintptr_t* regionBase, size_t* regionSize);
 void* qtmramMemAlign(size_t size, size_t alignment);

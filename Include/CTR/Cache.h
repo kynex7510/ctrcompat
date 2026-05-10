@@ -7,7 +7,7 @@
 #ifndef GUARD_CTR_CACHE_H
 #define GUARD_CTR_CACHE_H
 
-#include <stddef.h>
+#include <CTR/Defs.h>
 
 #ifdef __cplusplus
 extern "C" {

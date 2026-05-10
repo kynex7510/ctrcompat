@@ -7,6 +7,8 @@
 #ifndef GUARD_CTR_DEFS_H
 #define GUARD_CTR_DEFS_H
 
+#include <stddef.h>
+#include <stdint.h>
 #include <stdbool.h>
 
 #ifdef __cplusplus
