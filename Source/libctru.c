@@ -306,5 +306,5 @@ void ctrCVNotify(CTRCV* cv, size_t count) {
 
 void ctrCVBroadcast(CTRCV* cv) {
     CTR_ASSERT(cv);
-    CondVar_Broadcast((CTRCV*)cv);
+    CondVar_Broadcast((CondVar*)cv);
 }

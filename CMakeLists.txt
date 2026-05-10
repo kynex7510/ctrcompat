@@ -22,7 +22,7 @@ if (CTR_BAREMETAL)
     )
 else()
     set(CTRCOMPAT_SOURCES ${CTRCOMPAT_SOURCES}
-        Source/HOS.c
+        Source/libctru.c
     )
 endif()
 
@@ -30,8 +30,10 @@ add_library(ctrcompat STATIC ${CTRCOMPAT_SOURCES})
 
 if (CTR_BAREMETAL)
     target_include_directories(ctrcompat PUBLIC ${LIBN3DS_INCLUDE_PATHS})
-    target_compile_definitions(ctrcompat PUBLIC CTR_BAREMETAL)
+    target_compile_definitions(ctrcompat PUBLIC CTR_PLATFORM_LIBN3DS)
     target_link_libraries(ctrcompat PUBLIC n3ds11)
+else()
+    target_compile_definitions(ctrcompat PRIVATE CTR_PLATFORM_LIBCTRU)
 endif()
 
 target_include_directories(ctrcompat PUBLIC Include)
