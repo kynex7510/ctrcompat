@@ -9,6 +9,12 @@
 
 #include <CTR/Defs.h>
 
+// v++
+#define CTR_ATOMIC_POST_INC(v) __atomic_fetch_add(&v, 1, __ATOMIC_SEQ_CST)
+
+// --v
+#define CTR_ATOMIC_PRE_DEC(v) __atomic_sub_fetch(&v, 1, __ATOMIC_SEQ_CST)
+
 typedef struct CTRMtxImpl CTRMtx;
 typedef struct CTRCVImpl CTRCV;
 
