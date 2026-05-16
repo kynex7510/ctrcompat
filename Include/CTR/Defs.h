@@ -18,6 +18,7 @@
 #endif // __cplusplus
 
 #define CTR_LIKELY(x) (bool)__builtin_expect((bool)(x), true)
+#define CTR_UNLIKELY(x) (bool)__builtin_expect((bool)(x), false)
 
 /* Private stuff */
 
